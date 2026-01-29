@@ -1,0 +1,670 @@
+<theme-switcher [hidden]="true"/>
+<p-toast />
+
+<div>
+    <p style="position: static; font-size: xx-small; margin-bottom: -.2dvh;">Versão: {{c_Versao}}</p>
+</div>
+
+<div *ngIf="lLoginSucesso==false" style="margin-top: -1rem !important;">
+    <div style="text-align: -webkit-center; float: left;">
+        <!-- <div style="width: 15%;"></div> -->
+        <div style="width: 70%;">
+            <p-image src="logo_grid.png" width="80%"/>
+        </div>
+        <!-- <div style="width: 15%;"></div> -->
+    </div>
+    <p-divider></p-divider>
+    <div style="text-align: -webkit-center;">
+        <div class="card" style="width: fit-content;">
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-inputMask mask="99.999.999/9999-99" [(ngModel)]="cCNPJ" autocomplete="on" pSize="small" (onComplete)="checarPreenchimento_login()" [disabled]="lCNPJDisable"></p-inputMask>
+                    </p-iconfield>
+                    <label>CNPJ</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-inputMask mask="999.999.999-99" [(ngModel)]="cLogin" autocomplete="on" pSize="small" (onComplete)="checarPreenchimento_login()" [disabled]="lLoginDisable"></p-inputMask>
+                    </p-iconfield>
+                    <label>Usuário</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center w-full" style="width: 20rem;" *ngIf="lChaveAcessoVisible==true">
+                <p-iftalabel class="w-full">
+                    <p-iconfield>
+                        <input class="w-full" pInputText [(ngModel)]="cChaveAcesso" autocomplete="off" pSize=""/>
+                    </p-iconfield>
+                    <label>Informe chave</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full" *ngIf="lCampoSenhaVisible==true">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-password [(ngModel)]="cSenha" autocomplete="off" [feedback]="false" [toggleMask]="true" pSize="large"/>
+                    </p-iconfield>
+                    <label>{{lBotaoRenovarSenha==true?"Nova senha":"Senha"}}</label>
+                </p-iftalabel>
+            </div>
+            <div *ngIf="lBotaoRenovarSenha==true" style="text-align: left; color: crimson; font-size: smaller;">
+                <label>A senha deve conter:</label>
+                <label><li>No mínimo 14 caracteres</li></label>
+                <label><li>No máximo 30 caracteres</li></label>
+                <label><li>Letras e Números</li></label>
+                <label><li>Caractere especial (!&#64;#$%&*)</li></label>
+            </div>
+            <BR>
+            
+            <div *ngIf="cEmail_2F!==''" class="flex items-center justify-center h-full font-bold text-xl mb-2">
+                Informe o código de autenticação enviado para: {{cEmail_2F}}
+            </div>
+            <div *ngIf="cEmail_2F!==''&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                <p-inputotp [(ngModel)]="cAutenticacao2F" [length]="6">
+                    <ng-template #input let-token let-events="events" let-index="index">
+                        <input *ngIf="index >= 4" type="text" [maxLength]="1" onselect="this.select()" (input)="events.input($event)" (keydown)="events.keydown($event)" [attr.cAutenticacao2F]="token" class="custom-otp-input" />
+                        <input *ngIf="index <= 3" type="text" [maxLength]="1" inputmode="numeric" onselect="this.select()" (input)="events.input($event)" (keydown)="events.keydown($event)" onselect="this.select()" [attr.cAutenticacao2F]="token" class="custom-otp-input" />
+                        <div *ngIf="index === 3" class="px-4">
+                            <i class="pi pi-minus"></i>
+                        </div>
+                    </ng-template>
+                </p-inputotp>
+            </div>
+
+            <BR>
+            <div class="flex items-center justify-center h-full" *ngIf="lBotoesVisible==true">
+                <p-button *ngIf="cEmail_2F===''&&lBotoesVisible==true&&lBotaoRenovarSenha==false" label="Entrar" severity="info" (click)="validarLogin()"/>
+                <p-button *ngIf="cEmail_2F!==''&&n2F_SegundosRestantes>0&&lBotoesVisible==true" label="Validar" severity="info" (click)="validar2F()"/>
+                <p-button *ngIf="cEmail_2F!==''&&n2F_SegundosRestantes==0&&lBotoesVisible==true" label="Reenviar" severity="info" (click)="validarLogin()"/>
+                <p-button *ngIf="lBotaoRenovarSenha==true" label="Renovar Senha" severity="info" (click)="renovarSenha()"/>
+            </div>
+
+            <div *ngIf="cEmail_2F!==''&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                Validade do código enviado ao e-mail acima:
+            </div>
+            <div *ngIf="cEmail_2F!==''&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                <div class="base-timer">
+                    <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <g class="base-timer__circle">
+                            <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+                            <path
+                                id="base-timer-path-remaining"
+                                stroke-dasharray="283"
+                                class="base-timer__path-remaining ${remainingPathColor}"
+                                d="
+                                    M 50, 50
+                                    m -45, 0
+                                    a 45,45 0 1,0 90,0
+                                    a 45,45 0 1,0 -90,0
+                                "
+                        ></path>
+                        </g>
+                    </svg>
+                    <span id="base-timer-label" class="base-timer__label">{{formatTime(timeLeft)}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="lLoginSucesso==true" style="margin-top: -1rem !important;" class="card">
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">Usuários</p-tab>
+            <p-tab value="1">Fornecedores</p-tab>
+            <p-tab value="2">Parâmetros</p-tab>
+            <p-tab value="3">Funções</p-tab>
+            <p-tab value="4">Carteira</p-tab>
+            <p-tab value="5">Pendências</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <p-table
+                    #dt1
+                    [value]="aCliente"
+                    [globalFilterFields]="['login', 'email', 'chave']"
+                    dataKey="recno"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rows]="10"
+                    [paginator]="true"
+                    stateStorage="session"
+                    stateKey="statedemo-session"
+                >
+                    <ng-template #caption>
+                        <div style="text-align: right;">
+                            <p-button icon="pi pi-plus" severity="info" [rounded]="true" (click)="incluirCliente()" class="botoesCliente"/>
+                            <p-button icon="pi pi-save" severity="success" [rounded]="true" (click)="incluirCliente_enviarPOST()"/>
+                        </div>
+                    </ng-template>
+                    <ng-template #header>
+                        <tr>
+                            <th pSortableColumn="login" style="width:fit-content">Login <p-sortIcon field="login" /></th>
+                            <th pSortableColumn="email" style="width:fit-content">E-mail <p-sortIcon field="email" /></th>
+                            <th style="width:fit-content">Chave primeiro acesso </th>
+                            <th style="width:fit-content">Ações </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-customer>
+                        <tr [pSelectableRow]="customer">
+                            <td>
+                                {{ customer.login }}
+                            </td>
+                            <td>
+                                {{ customer.email }}
+                            </td>
+                            <td>
+                                {{ customer.chave }}
+                            </td>
+                            <td>
+                                <p-button icon="pi pi-pencil" severity="info" [rounded]="true" (click)="alterarCliente(customer.recno)" class="botoesCliente"/>
+                                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" (click)="excluirCliente(customer.recno)" class="botoesCliente"/>
+                                <p-button *ngIf="customer.chave.trim()!==''" icon="pi pi-send" severity="primary" [rounded]="true" (click)="enviarChaveCliente(customer.recno)"/>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template emptymessage>
+                        <tr>
+                            <td colspan="4">No customer found.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <!-- 
+                selectionMode="single"
+                [(selection)]="selectedFornecedor"
+                -->
+                <p-table
+                    #dt1
+                    [value]="aFornecedor"
+                    [globalFilterFields]="['codigo', 'login', 'nome', 'contato', 'email']"
+                    dataKey="recno"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rows]="10"
+                    [paginator]="true"
+                    stateStorage="session"
+                    stateKey="statedemo-session"
+                >
+                    <ng-template #caption>
+                        <p-iconfield iconPosition="left" style="float: left;">
+                            <p-inputicon>
+                                <i class="pi pi-search"></i>
+                            </p-inputicon>
+                            <input
+                                pInputText
+                                type="text"
+                                (input)="dt1.filterGlobal($event.target.value, 'contains')"
+                                placeholder="Pesquisa"
+                            />
+                        </p-iconfield>
+                        <div style="text-align: right;">
+                            <p-button icon="pi pi-plus" severity="info" [rounded]="true" (click)="incluirFornecedor()" class="botoesFornecedor"/>
+                            <p-button icon="pi pi-save" severity="success" [rounded]="true" (click)="incluirFornecedor_enviarPOST()"/>
+                        </div>
+                    </ng-template>
+                    <ng-template #header>
+                        <tr>
+                            <th pSortableColumn="codigo" style="width:fit-content">Código <p-sortIcon field="codigo" /></th>
+                            <th style="width:fit-content">Loja </th>
+                            <th pSortableColumn="nome" style="width:fit-content">Nome <p-sortIcon field="nome" /></th>
+                            <th pSortableColumn="login" style="width:fit-content">Login <p-sortIcon field="login" /></th>
+                            <th pSortableColumn="contato" style="width:fit-content">Contato <p-sortIcon field="contato" /></th>
+                            <th pSortableColumn="email" style="width:fit-content">E-mail <p-sortIcon field="email" /></th>
+                            <th style="width:fit-content">Ações </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-supplier>
+                        <tr [pSelectableRow]="supplier">
+                            <td>
+                                {{ supplier.codigo }}
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.loja }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {{ supplier.nome }}
+                            </td>
+                            <td>
+                                {{ supplier.login }}
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.contato }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {{ supplier.email }}
+                            </td>
+                            <td>
+                                <p-button icon="pi pi-pencil" severity="info" [rounded]="true" (click)="alterarFornecedor(supplier.recno)" class="botoesFornecedor"/>
+                                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" (click)="excluirFornecedor(supplier.recno)"/>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template emptymessage>
+                        <tr>
+                            <td colspan="5">No supplier found.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+            <p-tabpanel value="2">
+                <p-table
+                    #dt1
+                    [value]="aParametro"
+                    [globalFilterFields]="['chave', 'descritivo', 'contem']"
+                    dataKey="recno"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rows]="10"
+                    [paginator]="true"
+                    stateStorage="session"
+                    stateKey="statedemo-session"
+                >
+                    <ng-template #caption>
+                        <div style="text-align: right;">
+                            <p-button icon="pi pi-save" severity="success" [rounded]="true" (click)="alterarParametro_enviarPOST()"/>
+                        </div>
+                    </ng-template>
+                    <ng-template #header>
+                        <tr>
+                            <th pSortableColumn="chave" style="width:fit-content">Chave <p-sortIcon field="chave" /></th>
+                            <th pSortableColumn="descritivo" style="width:fit-content">Descritivo <p-sortIcon field="descritivo" /></th>
+                            <th style="width:fit-content">Conteúdo </th>
+                            <th style="width:fit-content">Ações </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-parametro>
+                        <tr [pSelectableRow]="parametro">
+                            <td>
+                                {{ parametro.chave }}
+                            </td>
+                            <td>
+                                {{ parametro.descritivo }}
+                            </td>
+                            <td>
+                                {{ parametro.contem }}
+                            </td>
+                            <td>
+                                <p-button icon="pi pi-pencil" severity="info" [rounded]="true" (click)="alterarParametro(parametro.recno)"/>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template emptymessage>
+                        <tr>
+                            <td colspan="4">No parameter found.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+            <p-tabpanel value="3">
+                <BR>
+                <div style="text-align: -webkit-center;">
+                    <label>Exportar planilha de modelos em formato CSV para posterior importação da Carteira de Pedidos</label>
+                </div>
+                <div style="text-align: -webkit-center;">
+                    <a href="documentos/importar_carteira_modelo.csv" download="importar_carteira_modelo.csv">
+                        <p-button label="Download modelo" severity="info" style="margin-right: 2rem;"></p-button>
+                    </a>
+                    <a href="documentos/importar_readme.txt" download="importar_readme.txt">
+                        <p-button label="Documentação" severity="info"/>
+                    </a>
+                </div>
+                <BR>
+                <BR>
+                <BR>
+                <div style="text-align: -webkit-center;">
+                    <label>Importar planilha da Carteira de Pedidos</label>
+                </div>
+                <div style="text-align: -webkit-center;">
+                    <!-- <p-button label="Importar" severity="info" style="margin-right: 2rem;"></p-button> -->
+                    <p-fileUpload mode="basic" name="myfile[]" chooseIcon="pi pi-upload" [auto]="true" (onSelect)="onFileSelect($event)" chooseLabel="Importar"/>
+                    <!-- <div *ngIf="fileContent">
+                        <h3>File Content:</h3>
+                        <pre>{{ fileContent }}</pre>
+                    </div> -->
+                    <p-button label="API REST Documentação" severity="info" />
+                </div>
+            </p-tabpanel>
+            <p-tabpanel value="4">
+                <div style="text-align: -webkit-center;">
+                    <label><b>Carteira atual de pedidos com Fornecedores</b></label>
+                </div>
+                <p-table
+                    #dt1
+                    [value]="aCarteiraGeral"
+                    [globalFilterFields]="['fornecedor', 'loja', 'nome', 'pedido', 'item', 'quantidade', 'qtde_entregue', 'entrega', 'saldo', 'total', 'pendencia']"
+                    dataKey="recno"
+                    [tableStyle]="{ 'min-width': '50rem' }"
+                    [rows]="30"
+                    [paginator]="true"
+                    stateStorage="session"
+                    stateKey="statedemo-session"
+                    [loading]="loading"
+                    (onFilter)="onFilterCarteiraGeral($event)"
+                >
+                    <ng-template #header>
+                        <tr>
+                            <th colspan="2">
+                                <p-columnFilter type="text" field="fornecedor" filterOn="input" placeholder="Pesquisa Código"></p-columnFilter>
+                            </th>
+                            <th>
+                                <p-columnFilter type="text" field="nome" filterOn="input" placeholder="Pesquisa Nome"></p-columnFilter>
+                            </th>
+                            <th colspan="2">
+                                <p-columnFilter type="text" field="pedido" filterOn="input" placeholder="Pesquisa Pedido"></p-columnFilter>
+                            </th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th colspan="2">
+                                <p-iftaLabel>
+                                    <p-select [options]="a_TipoMaterial" inputId="dd-tipo" [(ngModel)]="c_TipoMaterial" class="w-full" (onChange)="filtrarMaterial()"/>
+                                    <label for="dd-tipo">Tipo material</label>
+                                </p-iftaLabel>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th pSortableColumn="fornecedor" style="width:fit-content">Código <p-sortIcon field="fornecedor" /></th>
+                            <th style="width:fit-content">Loja </th>
+                            <th pSortableColumn="nome" style="width:fit-content">Nome <p-sortIcon field="nome" /></th>
+                            <th pSortableColumn="pedido" style="width:fit-content">Pedido <p-sortIcon field="pedido" /></th>
+                            <th style="width:fit-content">Item </th>
+                            <th style="width:fit-content; text-align-last: right;">Quantidade </th>
+                            <th style="width:fit-content; text-align-last: right;">Qtde.Entregue </th>
+                            <th style="width:fit-content; text-align-last: center; text-align: -webkit-center;">Data Entrega </th>
+                            <th style="width:fit-content; text-align-last: left; text-align: left;">Motivo atraso </th>
+                            <th style="width:fit-content; text-align-last: right;">Saldo </th>
+                            <th style="width:fit-content; text-align-last: center;">Total </th>
+                            <th style="width:fit-content; text-align-last: center;">Pendência </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template #body let-supplier>
+                        <tr [pSelectableRow]="supplier">
+                            <td style="width:fit-content">
+                                {{ supplier.fornecedor }}
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.loja }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {{ supplier.nome }}
+                            </td>
+                            <td>
+                                {{ supplier.pedido }}
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.item }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: right;">
+                                <div class="grid items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.quantidade }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: right;">
+                                <div class="grid items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.qtde_entregue }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: right;">
+                                <div class="grid items-center gap-2">
+                                    <span *ngIf="supplier.esta_atrasado==='S'" class="ml-1 align-middle" style="font-weight: bold; color: orangered;">{{ supplier.entrega }}</span>
+                                    <span *ngIf="supplier.esta_atrasado!=='S'" class="ml-1 align-middle">{{ supplier.entrega }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: center;">
+                                <span>
+                                    <div class="tooltip">
+                                        <i *ngIf="supplier.ult_motivo_atraso!==''" class="pi pi-flag"></i>
+                                        <span class="tooltiptext" style="text-align: left !important; text-align-last: left !important; padding-left: .5rem !important;">{{ supplier.ult_motivo_atraso }}</span>
+                                    </div>
+                                </span>
+                            </td>
+                            <td style="text-align-last: right;">
+                                <div class="grid items-center gap-2">
+                                    <span class="ml-1 align-middle">{{ supplier.saldo }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: right;">
+                                <div class="grid gap-2" style="text-align-last: justify;">
+                                    <span class="ml-1 align-middle">{{ supplier.total | currency: 'R$ '}}</span>
+                                </div>
+                            </td>
+                            <td style="text-align-last: center;">
+                                <span>
+                                    <div class="tooltip">
+                                        <i *ngIf="supplier.pendencia==='F'" class="pi pi-asterisk"></i>
+                                        <span class="tooltiptext">{{ supplier.textopendendia }}</span>
+                                    </div>
+                                </span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template #footer>
+                        <tr>
+                            <td colspan="5" class="text-right font-bold p-3 pb-0">Totalizador</td>
+                            <!-- <td class="font-bold p-3 pb-0">{{ supplier.quantidade | currency: 'R$ ' }}</td>
+                            <td class="font-bold p-3 pb-0">{{ supplier.qtde_entregue | currency: 'R$ ' }}</td>
+                            <td class="font-bold p-3 pb-0">{{ supplier.total | currency: 'R$ ' }}</td> -->
+                            <td class="font-bold p-3 pb-0" style="text-align-last: right;">{{ n_CarteiraGeralFiltrada_Qtde | currency: ' ' }}</td>
+                            <td class="font-bold p-3 pb-0" style="text-align-last: right;">{{ n_CarteiraGeralFiltrada_Quje | currency: ' ' }}</td>
+                            <td></td>
+                            <td></td>
+                            <td class="font-bold p-3 pb-0" style="text-align-last: right;">{{ n_CarteiraGeralFiltrada_Saldo | currency: ' ' }}</td>
+                            <td class="font-bold p-3 pb-0" style="text-align-last: justify;">{{ n_CarteiraGeralFiltrada_Total | currency: 'R$&nbsp;' }}</td>
+                            <td></td>
+                        </tr>
+                    </ng-template>
+                    <ng-template emptymessage>
+                        <tr>
+                            <td colspan="12">No supplier found.</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </p-tabpanel>
+            <p-tabpanel value="5">
+                <div style="text-align: -webkit-center;">
+                    <label><b>Itens atualmente com alteração e aguardando aceite por parte Cliente</b></label>
+                </div>
+                
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</div>
+
+<p-dialog [(visible)]="lVisibleDialogIncluirFornecedor" styleClass="p-dialog_IncluirFornecedor" modal="modal">
+    <ng-template #header>
+        <span>Dados para inclusão de novo Fornecedor:</span>
+    </ng-template>
+
+    <ng-template #content>
+        <!-- <span>Texto grandão para simular os limites da tela em horizontal e assim poder posicionar os botões de salvar e cancelar</span> -->
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <p-inputMask mask="999999" [(ngModel)]="cFornecedor_codigo" autocomplete="off" pSize="medium" (onComplete)="incluirFornecedor_checkDuplicidade()" [disabled]="lDialogIncluirFornecedorModoEdicao"></p-inputMask>
+            </p-iconfield>
+            <label>Informe código</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <p-inputMask mask="99" [(ngModel)]="cFornecedor_loja" autocomplete="off" pSize="medium" (onComplete)="incluirFornecedor_checkDuplicidade()" [disabled]="lDialogIncluirFornecedorModoEdicao"></p-inputMask>
+            </p-iconfield>
+            <label>Informe loja</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cFornecedor_nome" autocomplete="off" pSize="small" [disabled]="lDialogIncluirFornecedorModoEdicaoCampoNome"/>
+            </p-iconfield>
+            <label>Informe nome</label>
+        </p-iftalabel>    
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <p-inputMask mask="999.999.999-99" [(ngModel)]="cFornecedor_login" autocomplete="off" pSize="medium" (onComplete)="incluirFornecedor_checkDuplicidade()" [disabled]="lDialogIncluirFornecedorModoEdicao"></p-inputMask>
+            </p-iconfield>
+            <label>Informe login</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cFornecedor_contato" autocomplete="off" pSize="small"/>
+            </p-iconfield>
+            <label>Informe contato</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cFornecedor_email" autocomplete="off" pSize="small" (blur)="incluirFornecedor_checkEmail()" (change)="incluirFornecedor_checkEmail()"/>
+            </p-iconfield>
+            <label>Informe e-mail</label>
+        </p-iftalabel>
+        <div *ngIf="lVisibleErroCampoEmail==true" style="font-size: x-small; font-weight: bold; color: red;">
+            Regras de validação do campo E-mail:
+            <li>iniciado somente Letras</li>
+            <li>caracteres de A a Z e Números</li>
+            <li>especiais .ponto -traço _underline</li>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div style="width: 100%; display: flex; justify-content: space-between;">
+            <div>
+                <p-button label="Salvar" *ngIf="lDialogIncluirFornecedorModoEdicao==true" icon="pi pi-check" (click)="alterarFornecedor_save()" severity="success" [disabled]="lDisableSalvarDialogIncluirFornecedor"></p-button>
+                <p-button label="Salvar" *ngIf="lDialogIncluirFornecedorModoEdicao==false" icon="pi pi-check" (click)="incluirFornecedor_save()" severity="success" [disabled]="lDisableSalvarDialogIncluirFornecedor"></p-button>
+            </div>
+            <div>
+                <p-button label="Cancelar" icon="pi pi-times" (click)="incluirFornecedor_cancel()" severity="danger"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+
+<div>
+    <p-confirmdialog #cd>
+        <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+            <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+                <div class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20">
+                    <i class="pi pi-question !text-5xl"></i>
+                </div>
+                <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+                <p class="mb-0">{{ message.message }}</p>
+                <div class="flex items-center gap-2 mt-6">
+                    <p-button label="Confirmar" icon="pi pi-save" severity="success" (onClick)="onAccept()" styleClass="w-32"></p-button>
+                    <p-button label="Cancelar" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="onReject()" styleClass="w-32"></p-button>
+                </div>
+            </div>
+        </ng-template>
+    </p-confirmdialog>
+</div>
+
+
+
+<p-dialog [(visible)]="lVisibleDialogIncluirCliente" styleClass="p-dialog_IncluirCliente" modal="modal">
+    <ng-template #header>
+        <span>Dados para inclusão de novo Login:</span>
+    </ng-template>
+
+    <ng-template #content>
+        <!-- <span>Texto grandão para simular os limites da tela em horizontal e assim poder posicionar os botões de salvar e cancelar</span> -->
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <p-inputMask mask="999.999.999-99" [(ngModel)]="cCliente_login" autocomplete="off" pSize="medium" (onComplete)="incluirCliente_checkDuplicidade()"></p-inputMask>
+            </p-iconfield>
+            <label>Informe login</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cCliente_email" autocomplete="off" pSize="small" (change)="incluirCliente_checkEmail()"/>
+            </p-iconfield>
+            <label>Informe e-mail</label>
+        </p-iftalabel>
+        <div *ngIf="lVisibleErroCampoEmail==true" style="font-size: x-small; font-weight: bold; color: red;">
+            Regras de validação do campo E-mail:
+            <li>iniciado somente Letras</li>
+            <li>caracteres de A a Z e Números</li>
+            <li>especiais .ponto -traço _underline</li>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div style="width: 100%; display: flex; justify-content: space-between;">
+            <div>
+                <p-button label="Salvar" *ngIf="lDialogIncluirClienteModoEdicao==true" icon="pi pi-check" (click)="alterarCliente_save()" severity="success" [disabled]="lDisableSalvarDialogIncluirCliente"></p-button>
+                <p-button label="Salvar" *ngIf="lDialogIncluirClienteModoEdicao==false" icon="pi pi-check" (click)="incluirCliente_save()" severity="success" [disabled]="lDisableSalvarDialogIncluirCliente"></p-button>
+            </div>
+            <div>
+                <p-button label="Cancelar" icon="pi pi-times" (click)="incluirCliente_cancel()" severity="danger"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+
+
+<p-dialog [(visible)]="lVisibleDialogAlterarParametro" styleClass="p-dialog_AlterarParametro" modal="modal">
+    <ng-template #header>
+        <span>Dados para alteração de parâmetro:</span>
+    </ng-template>
+
+    <ng-template #content>
+        <!-- <span>Texto grandão para simular os limites da tela em horizontal e assim poder posicionar os botões de salvar e cancelar</span> -->
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cParametro_chave" autocomplete="off" pSize="small" [disabled]="true" />
+            </p-iconfield>
+            <label>Parâmetro</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <!-- <input class="w-full" pInputText [(ngModel)]="cParametro_descritivo" autocomplete="off" pSize="small" [disabled]="true" /> -->
+                <textarea class="w-full" rows="3" pTextarea [(ngModel)]="cParametro_descritivo" pSize="small" [disabled]="true"></textarea>
+            </p-iconfield>
+            <label>Descritivo</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <!-- <input class="w-full" pInputText [(ngModel)]="cParametro_descritivo" autocomplete="off" pSize="small" [disabled]="true" /> -->
+                <textarea class="w-full" rows="2" pTextarea [(ngModel)]="cParametro_aceitavel" pSize="small" [disabled]="true"></textarea>
+            </p-iconfield>
+            <label>Conteúdo aceitável</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="cParametro_contem" autocomplete="off" pSize="medium" (change)="alterarParametro_checkConteudo()"/>
+            </p-iconfield>
+            <label>Conteúdo</label>
+        </p-iftalabel>
+    </ng-template>
+
+    <ng-template #footer>
+        <div style="width: 100%; display: flex; justify-content: space-between;">
+            <div>
+                <p-button label="Salvar" icon="pi pi-check" (click)="alterarParametro_save()" severity="success" [disabled]="lDisableSalvarDialogAlterarParametro"></p-button>
+            </div>
+            <div>
+                <p-button label="Cancelar" icon="pi pi-times" (click)="alterarParametro_cancel()" severity="danger"></p-button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<ngx-spinner name="timer" bdColor = "rgba(0, 0, 0, 0.8)" size = "large" color = "#fff" type = "timer" [fullScreen] = "true"><p style="color: white" > Aguarde ... </p></ngx-spinner>

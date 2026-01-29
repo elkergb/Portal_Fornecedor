@@ -1,0 +1,49 @@
+<p-toast />
+
+<div>
+    <p-table [value]="dataSourceItemPedidoCompra" stripedRows [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [tableStyle]="{'min-width': '50rem'}">
+        <ng-template #header>
+            <tr>
+                <th>Item</th>
+                <th>Produto</th>
+                <th>Descrição</th>
+                <th>Quantidade</th>
+                <th>Qtde.Entregue</th>
+                <th>Valor unit.</th>
+                <th>Valor total</th>
+                <th>% IPI</th>
+                <th>Entrega</th>
+                <th style="width: 1rem;">Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-item>
+            <tr>
+                <td>{{item.item}}</td>
+                <td>{{item.produto}}</td>
+                <td>{{item.descritivo}}</td>
+                <td>{{item.quantidade}}</td>
+                <td>{{item.qtd_entregue}}</td>
+                <td style="text-align: -webkit-right;">{{item.vlr_unitario | currency:"R$ "}}</td>
+                <td style="text-align: -webkit-right;">{{item.vlr_total | currency:"R$ "}}</td>
+                <td>{{item.ipi_porcentagem}}</td>
+                <td>{{item.data_entrega}}</td>
+                <td style="padding-top: 0; padding-bottom: 0;">
+                    <p-button label="Editar" iconPos="top" size="small" class="button_acoes_itens_pedidos">
+                        <i class="pi pi-file-edit" style="margin-bottom: -.5rem; font-size: 1.5rem;"></i>
+                    </p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<div style="float: left;">
+    <p-button icon="pi pi-save" severity="info"></p-button>
+</div>
+<div style="float: right; text-align-last: right;">
+    <p-button icon="pi pi-times" severity="danger" (onClick)="cancelarEntrevistaRH()"></p-button>
+</div>
+
+<BR>
+<BR>
+<BR>

@@ -1,0 +1,310 @@
+<theme-switcher [hidden]="true"/>
+<p-toast />
+
+<!-- card do MEGAMENU -->
+<div class="card" style="padding-bottom: 0;">
+    <!-- <p-megamenu [model]="items" [style]="{ 'border-radius': '3rem', display: 'flex' }" styleClass="p-4 bg-surface-0 dark:bg-surface-900"> -->
+        <p-megamenu [model]="items" [style]="{ 'border-radius': '3rem' }" styleClass="p-4 bg-surface-0 dark:bg-surface-900">
+        <ng-template #item let-item>
+            <a *ngIf="item.root" pRipple (click)="menu_clicado(item.label,item.pageHierarchy)" class="flex items-center cursor-pointer px-4 py-2 overflow-hidden relative font-semibold text-lg uppercase" style="border-radius: 2rem">
+                <span><i [ngClass]="item.icon"></i></span>
+                <span class="ml-2">{{ item.label }}</span>
+            </a>
+            <a *ngIf="!item.root" class="flex items-center p-3 cursor-pointer mb-2 gap-2" (click)="menu_clicado(item.label,item.pageHierarchy)" >
+                <span class="inline-flex items-center justify-center rounded-full bg-primary text-primary-contrast w-12 h-12">
+                    <p-overlaybadge *ngIf="item.valueBadge>0" severity="danger" value={{item.valueBadge}} badgeSize="small">
+                        <i [ngClass]="item.icon + ' text-lg'"></i>
+                    </p-overlaybadge>
+                    <i *ngIf="item.valueBadge==0 || item.valueBadge==undefined" [ngClass]="item.icon + ' text-lg'"></i>
+                </span>
+                <span class="inline-flex flex-col gap-1">
+                    <span class="font-medium text-lg">{{ item.label }}</span>
+                    <span class="whitespace-nowrap">{{ item.subtext }}</span>
+                </span>
+            </a>
+        </ng-template>
+        <ng-template #end>
+            <!-- <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" /> -->
+            <div>
+                <p style="font-weight: bold;">Multa atraso entrega:</p>
+                <p style="font-weight: bold; color: red;">{{ n_Valor_Multa_Atraso_Entrega | currency: 'R$ '}}</p>
+            </div>
+            <div style="clear: both;"></div>
+            <div>
+                <p-image src="logo_grid.png" width="220dvw"/>
+            </div>
+        </ng-template>
+    </p-megamenu>
+    <div class="flex justify-center" style="padding: 0 0 0 0">
+        <p-breadcrumb class="max-w-full" [model]="routeCaminhos" [home]="homeCaminhos" />
+    </div>
+</div>
+
+<!-- card da janela de confirmação de ENVIAR INFORMAÇÕES -->
+<div>
+    <p-confirmdialog #cd>
+        <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+            <div class="flex flex-col items-center p-8 bg-surface-0 dark:bg-surface-900 rounded">
+                <div class="rounded-full bg-primary text-primary-contrast inline-flex justify-center items-center h-24 w-24 -mt-20">
+                    <i class="pi pi-question !text-5xl"></i>
+                </div>
+                <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+                <p class="mb-0">{{ message.message }}</p>
+                <div class="flex items-center gap-2 mt-6">
+                    <span *ngIf="cMenu_clicado!==''")>
+                        <p-button label="Enviar" icon="pi pi-save" severity="success" (onClick)="onAccept()" styleClass="w-32"></p-button>
+                        <p-button label="Cancelar" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="onReject()" styleClass="w-32"></p-button>
+                    </span>
+                    <span *ngIf="cMenu_clicado===''">
+                        <p-button label="Estou ciente" icon="pi pi-check" severity="info" (onClick)="onAccept()" styleClass="w-32"></p-button>
+                    </span>
+                </div>
+            </div>
+        </ng-template>
+    </p-confirmdialog>
+</div>
+
+
+<!-- card da janela de MOTIVOS de atrasos na entrega dos pedidos -->
+<div class="card flex justify-center" *ngIf="l_Visible_AlcadaAtrasas_dialog">
+    <p-dialog [modal]="true" [(visible)]="l_Visible_AlcadaAtrasas_dialog" [style]="{ width: '25rem' }" closable="false" resizable="false" maskStyleClass="backdrop-blur-sm">
+        <ng-template #header>
+            <p><b>Atraso* na entrega PC/Item:</b> {{c_AlcadaAtrasos_pedido}} - {{c_AlcadaAtrasos_item}}</p>
+        </ng-template>
+            <BR>
+            <p-floatlabel variant="on">
+                <textarea maxlength="250" rows="5" cols="30" pTextarea [(ngModel)]="c_AlcadaAtrasos_MotivoInformado" fluid></textarea>
+                <label>Caracteres restantes: {{250 - c_AlcadaAtrasos_MotivoInformado.length}}</label>
+            </p-floatlabel>
+            <div class="flex justify-end gap-2">
+                <p-button label="Cancel" severity="secondary" (click)="l_Visible_AlcadaAtrasas_dialog=false; c_AlcadaAtrasos_MotivoInformado=''" />
+                <p-button label="Save" (click)="alcadaAtrasos_BotaoSalvarMotivos()" />
+            </div>
+            <div>(*) Lembrando que, caso haja necessidade,</div>
+            <div style="clear: both;"></div>
+            <div>solicite alteração na data entrega</div>
+            <div style="clear: both;"></div>
+            <div>através da rotina <b>Carteira -> Editar</b></div>
+    </p-dialog>
+</div>
+
+<div class="card" *ngIf="cMenu_clicado==='Carteira'">
+    <p-table [value]="dataSourcePedidosCarteira" stripedRows [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]" [tableStyle]="{'min-width': '50rem'}">
+        <ng-template #header>
+            <tr>
+                <th style="width: 1rem;">Número</th>
+                <th style="width: 1rem;">Emissão</th>
+                <th style="text-align: -webkit-right; width: 1rem;">Valor Total</th>
+                <th style="width: 1rem;">Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-pedidosCarteira>
+            <tr>
+                <td><span *ngIf="pedidosCarteira.pendencia=='Sim'"><p-overlaybadge severity="danger" style="display: -webkit-box;"/><i class="pi pi-thumbs-up" style="font-size: large;">&nbsp;</i></span>{{pedidosCarteira.numero}}</td>
+                <td>{{pedidosCarteira.emissao}}</td>
+                <td style="text-align: -webkit-right; width: fit-content !important;">{{pedidosCarteira.valor_total | currency:"R$ "}}</td>
+                <td style="padding-top: 0; padding-bottom: 0;">
+                    <p-button label="Editar" iconPos="top" size="small" class="button_acoes_pedidosCarteira" (click)="abrirPedido(pedidosCarteira.numero)">
+                        <i class="pi pi-file-edit" style="margin-bottom: -.5rem; font-size: 1.5rem;"></i>
+                    </p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- card dos FOLLOW-UP -->
+<div class="card" *ngIf="cMenu_clicado.includes('Aceite')||cMenu_clicado==='Com atraso'">
+    <p-table [columns]="cMenu_clicado.includes('novos') ? dataSourceAlcadaAceiteNovos[0]['headers']
+                        : (cMenu_clicado.includes('quantidade') ? dataSourceAlcadaAceiteQuantidade[0]['headers']
+                        : (cMenu_clicado.includes('valores') ? dataSourceAlcadaAceiteValor[0]['headers']
+                        : (cMenu_clicado.includes('prazos') ? dataSourceAlcadaAceiteEntrega[0]['headers']
+                        : dataSourceAlcadaAtrasos[0]['headers'])))"
+            [value]="cMenu_clicado.includes('novos') ? dataSourceAlcadaAceiteNovos[1]['alterados']
+                    : (cMenu_clicado.includes('quantidade') ? dataSourceAlcadaAceiteQuantidade[1]['alterados']
+                    : (cMenu_clicado.includes('valores') ? dataSourceAlcadaAceiteValor[1]['alterados']
+                    : (cMenu_clicado.includes('prazos') ? dataSourceAlcadaAceiteEntrega[1]['alterados']
+                    : dataSourceAlcadaAtrasos[1]['atrasados'])))"
+            stripedRows [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [tableStyle]="{'min-width': '50rem'}">
+        <ng-template #header let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [ngStyle]="{'background-color':comparaTexto_backgroundColor(col.titulo)}">{{col.titulo}}</th>
+                <!-- <th style="width: 1rem;">Ações</th> -->
+                 <th>Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns" [ngStyle]="{'background-color':comparaTexto_backgroundColor(col.titulo)}">{{ rowData[col.campo] }}</td>
+                <td *ngIf="cMenu_clicado!=='Com atraso'">
+                    <p-button size="small" [rounded]="true" severity="info" pTooltip="Aceitar" (click)="alcadaPedidos_BotaoClicado('aceita',rowData['pedido'],rowData['item'])">
+                        <i class="pi pi-check"></i>
+                    </p-button>
+                    <p-button size="small" [rounded]="true" severity="danger" pTooltip="Recusar" (click)="alcadaPedidos_BotaoClicado('recusa',rowData['pedido'],rowData['item'])">
+                        <i class="pi pi-ban"></i>
+                    </p-button>
+                </td>
+                <td *ngIf="cMenu_clicado==='Com atraso'">
+                    <p-button *ngIf="alcadaAtrasos_BotaoApresentarOuNaoMotivos(rowData['pedido'],rowData['item'])" size="small" [rounded]="true" severity="info" pTooltip="Motivos" (click)="alcadaAtrasos_BotaoCienteClicado(rowData['pedido'],rowData['item'])">
+                        <i class="pi pi-list"></i>
+                    </p-button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<div class="card" *ngIf="cMenu_clicado==='Ajuda'">
+    <div class="card">
+        <p-button icon="pi pi-download"></p-button>
+        <span style="margin-left: 2rem;"></span>
+        <span>Baixar manual das operações contidas no menu ORÇAMENTO</span>
+    </div>
+    <div class="card">
+        <p-button icon="pi pi-download"></p-button>
+        <span style="margin-left: 2rem;"></span>
+        <span>Baixar manual das operações contidas no menu PEDIDOS</span>
+    </div>
+    <div class="card">
+        <p-button icon="pi pi-download"></p-button>
+        <span style="margin-left: 2rem;"></span>
+        <span>Baixar manual das operações contidas no menu FINANCEIRO</span>
+    </div>
+</div>
+
+<div class="card" *ngIf="cMenu_clicado==='Acessos'">
+    <p-table [value]="dataSourceAcessos" stripedRows [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 60]" [tableStyle]="{'min-width': '20rem'}">
+        <ng-template #header>
+            <tr>
+                <th>Dia</th>
+                <th>Sucessos</th>
+                <th>Erros</th>
+                <th style="width: 1rem;">Ações</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-acesso>
+            <tr>
+                <td>{{acesso.dia}}</td>
+                <td>{{acesso.sucesso}}</td>
+                <td>{{acesso.erro}}</td>
+                <td>
+                    <p-button iconPos="top" size="small" rounded="true" (click)="mostrarLogAcessosMensagens(acesso.dia)">
+                        <i class="pi pi-info-circle"></i>
+                    </p-button>
+                </td>
+                <p-dialog *ngIf="lLogAcessosDialog==true" visible="true" showHeader="false" [modal]="true" [style]="{ width: '100%' }" [closeOnEscape]="false">
+                    <div style="text-align: -webkit-center; font-size: large; font-weight: bold;">
+                        <span>Logs de acesso do dia: {{cLogAcessosDiaSelecionado}}</span>
+                    </div>
+                    <!-- <div style="display: flex; flex-direction: column-reverse; overflow: auto;"> -->
+                    <p-virtualscroller [items]="dataSourceLogAcessosMensagens" [itemSize]="7" virtualScroll="false" virtualScrollItemSize="7" scrollHeight="200px" styleClass="border border-surface" [style]="{ width: '100%', height: '200px' }">
+                        <ng-template #item let-item>
+                            <div class="flex items-center p-2" style="height: 2rem">
+                                <span>{{item.mensagem}}</span>
+                            </div>
+                        </ng-template>
+                    </p-virtualscroller>
+                    <div style="text-align: -webkit-center;">
+                        <p-button label="Fechar" (click)="lLogAcessosDialog = false" />
+                    </div>
+                </p-dialog>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<div class="card" *ngIf="cMenu_clicado==='Logins'">
+    <p-table [value]="dataSourceLogins" stripedRows [tableStyle]="{'min-width': '20rem'}">
+        <ng-template #header>
+            <tr>
+                <th>Login</th>
+                <th>Nome contato</th>
+                <th>E-mail</th>
+                <th>Reset senha</th>
+                <th>Copiar chave temporária</th>
+                <th>
+                    <p-button icon="pi pi-user-plus" severity="info" [rounded]="true" (click)="incluirNovoLoginFornecedor()"/>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-acesso>
+            <tr *ngIf="acesso.deletar==='N'">
+                <td>{{acesso.login}}</td>
+                <td>{{acesso.contato}}</td>
+                <td>{{acesso.email}}</td>
+                <td>
+                    <p-button *ngIf="acesso.newpss===''" icon="pi pi-key" severity="primary" [rounded]="true" (click)="reenviarSenhaPorEmail(acesso.recno)"/>
+                </td>
+                <td>
+                    <p-button *ngIf="acesso.newpss!==''" severity="info" variant="text" pTooltip="Copiar senha temporaria" showDelay="300" tooltipPosition="top" style="vertical-align: sub;" (click)="copiarSenhaTemporariaReset(acesso.recno)">
+                        <i class="pi pi-copy" style="font-size: x-large;"></i>
+                    </p-button>
+                    <!-- <span class="tooltip-container">
+                        <span class="pi pi-copy" style="margin-left: .5rem; font-size: x-large; vertical-align: sub; color: dodgerblue;"></span>
+                        <span class="tooltip-text">Copiar senha temporaria</span>
+                    </span> -->
+                    <!-- (click)="copiarSenhaTemporariaReset()" style="margin-left: 1rem;"/> -->
+                </td>
+                <td>
+                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" (click)="deletarLoginFornecedor(acesso.recno)"/>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="lVisibleDialogIncluirLoginFornecedor" styleClass="p-dialog_IncluirLoginFornecedor" modal="modal">
+    <ng-template #header>
+        <span>Dados para inclusão de Login:</span>
+    </ng-template>
+
+    <ng-template #content>
+        <!-- <span>Texto grandão para simular os limites da tela em horizontal e assim poder posicionar os botões de salvar e cancelar</span> -->
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <p-inputMask mask="999.999.999-99" [(ngModel)]="c_IncluirLogin_login" autocomplete="off" pSize="medium" (onComplete)="digitouCPFCompleto()"></p-inputMask>
+            </p-iconfield>
+            <label>Login/CPF</label>
+            <div *ngIf="lNovoLoginDiferenteRegras==true" style="font-size: x-small; font-weight: bold; color: red;">Preenchimento inválido</div>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="c_IncluirLogin_nome" autocomplete="off" pSize="small" [disabled]="false" (change)="incluirFornecedorLogin_ValidarDados()"/>
+            </p-iconfield>
+            <label>Nome</label>
+        </p-iftalabel>
+        <BR>
+        <p-iftalabel class="w-full">
+            <p-iconfield>
+                <input class="w-full" pInputText [(ngModel)]="c_IncluirLogin_email" autocomplete="off" pSize="small" [disabled]="false" (change)="validarEMAILDigitado()"/>
+            </p-iconfield>
+            <label>E-mail</label>
+            <div *ngIf="lVisibleErroCampoEmail==true" style="font-size: x-small; font-weight: bold; color: red;">
+                Regras de validação do campo E-mail:
+                <li>iniciado somente Letras</li>
+                <li>caracteres de A a Z e Números</li>
+                <li *ngIf="this.cCharValidacaoEmailEscolhida.source.length>20">especiais .ponto -traço _underline</li>
+                <li *ngIf="this.cCharValidacaoEmailEscolhida.source.length<20">qualquer caractere especial</li>
+            </div>
+        </p-iftalabel>
+    </ng-template>
+
+    <ng-template #footer>
+        <div>
+            <div style="width: 100%; display: flex; justify-content: space-between;">
+                <div>
+                    <p-button label="Salvar" icon="pi pi-check" (click)="incluirNovoLoginFornecedor_salvar()" severity="success" [disabled]="lDialogDisableIncluirFornecedorBotaoSalvar"></p-button>
+                </div>
+                <div>
+                    <p-button label="Cancelar" icon="pi pi-times" (click)="incluirNovoLoginFornecedor_cancel()" severity="danger"></p-button>
+                </div>
+            </div>
+        </div>
+        <BR>
+        <div style="clear: both;"></div>
+        <div><b>{{c_IncluirLogin_MensagemErro}}</b></div>
+    </ng-template>
+</p-dialog>
+
+<ngx-spinner name="timer" bdColor = "rgba(0, 0, 0, 0.8)" size = "large" color = "#fff" type = "timer" [fullScreen] = "true"><p style="color: white" > Aguarde ... </p></ngx-spinner>

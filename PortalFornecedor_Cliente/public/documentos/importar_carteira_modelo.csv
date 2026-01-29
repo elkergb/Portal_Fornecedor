@@ -1,0 +1,4 @@
+fornecedor;loja;pedido;item;produto;descricao;quantidade,qtde_entregue;vlr_unit;vlr_total;ipi_porcent;data_entrega
+123456;12;123456;0001;ABC_PROD_MODELO;descritivo do produto modelo sem acentuacao;10;5;1.000,0000;10,000.0000;5;31/12/2025
+123456;12;123456;0002;ABC_PROD_MODELO;descritivo do produto modelo sem acentuacao;10;5;1.000,0000;10,000.0000;5;31/12/2025
+123456;12;123456;3;ABC_PROD_MODELO;descritivo do produto modelo sem acentuacao;10;5;1.000,0000;10,000.0000;5;31/12/2025

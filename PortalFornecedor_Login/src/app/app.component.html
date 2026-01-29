@@ -1,0 +1,142 @@
+<theme-switcher [hidden]="true"/>
+<p-toast />
+
+<div>
+    <p style="position: static; font-size: xx-small; margin-bottom: -.2dvh;">Versão: {{c_Versao}}</p>
+</div>
+
+<div style="margin-top: -1rem !important;">
+    <div style="text-align: -webkit-center; float: left;">
+        <!-- <div style="width: 15%;"></div> -->
+        <div style="width: 70%;">
+            <p-image src="logo_grid.png" width="80%"/>
+        </div>
+        <!-- <div style="width: 15%;"></div> -->
+    </div>
+    <p-divider></p-divider>
+    <div style="text-align: -webkit-center;">
+        <div class="card" style="width: fit-content;">
+            <!-- <div class="flex items-center justify-center h-full">
+                <p style="text-align: center; font-weight: bold;">Informe seu login e senha</p>
+            </div>
+            <BR> -->
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <input pInputText [(ngModel)]="cCodigoFornecedor" autocomplete="on" pSize="small" [disabled]="cEmail_2F==='' ? false : true"/>
+                    </p-iconfield>
+                    <label>Código fornecedor</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <input pInputText [(ngModel)]="cCodigoLoja" autocomplete="on" pSize="small" [disabled]="cEmail_2F==='' ? false : true"/>
+                    </p-iconfield>
+                    <label>Código loja</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-inputMask mask="999.999.999-99" [(ngModel)]="cLogin" autocomplete="on" pSize="small" [disabled]="cEmail_2F==='' ? false : true"></p-inputMask>
+                    </p-iconfield>
+                    <label>Login</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-password [(ngModel)]="cSenha" autocomplete="off" [feedback]="false" [toggleMask]="true" pSize="small" [disabled]="cEmail_2F==='' ? false : true"/>
+                    </p-iconfield>
+                    <label>Senha</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            
+            <div *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'" class="flex items-center justify-center h-full font-bold text-xl mb-2">
+                Informe o código de autenticação enviado para: {{cEmail_2F}}
+            </div>
+            <div *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                <p-inputotp [(ngModel)]="cAutenticacao2F" [length]="6">
+                    <ng-template #input let-token let-events="events" let-index="index">
+                        <input *ngIf="index >= 4" type="text" [maxLength]="1" onselect="this.select()" (input)="events.input($event)" (keydown)="events.keydown($event)" [attr.cAutenticacao2F]="token" class="custom-otp-input" />
+                        <input *ngIf="index <= 3" type="text" [maxLength]="1" inputmode="numeric" onselect="this.select()" (input)="events.input($event)" (keydown)="events.keydown($event)" onselect="this.select()" [attr.cAutenticacao2F]="token" class="custom-otp-input" />
+                        <div *ngIf="index === 3" class="px-4">
+                            <i class="pi pi-minus"></i>
+                        </div>
+                    </ng-template>
+                </p-inputotp>
+            </div>
+
+            <BR>
+            <div class="flex items-center justify-center h-full">
+                <p-button *ngIf="cEmail_2F===''" label="Entrar" severity="info" (click)="validarLogin()"/>
+                <p-button *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'&&n2F_SegundosRestantes>0" label="Validar" severity="info" (click)="validar2F()"/>
+                <p-button *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'&&n2F_SegundosRestantes==0" label="Reenviar" severity="info" (click)="validarLogin()"/>
+            </div>
+
+            <div *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                Validade do código enviado ao e-mail acima:
+            </div>
+            <div *ngIf="cEmail_2F!==''&&cEmail_2F!=='reset_pss'&&n2F_SegundosRestantes>0" class="flex items-center justify-center h-full">
+                <div class="base-timer">
+                    <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <g class="base-timer__circle">
+                            <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+                            <path
+                                id="base-timer-path-remaining"
+                                stroke-dasharray="283"
+                                class="base-timer__path-remaining ${remainingPathColor}"
+                                d="
+                                    M 50, 50
+                                    m -45, 0
+                                    a 45,45 0 1,0 90,0
+                                    a 45,45 0 1,0 -90,0
+                                "
+                        ></path>
+                        </g>
+                    </svg>
+                    <span id="base-timer-label" class="base-timer__label">{{formatTime(timeLeft)}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="cEmail_2F==='reset_pss'" class="card" style="width: fit-content;">
+            <div class="flex items-center justify-center h-full">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-password [minlength]="14" [maxlength]="30" [(ngModel)]="cNovaSenha1" autocomplete="off" [feedback]="false" [toggleMask]="true" pSize="small" (onBlur)="testeRenovarSenha()"/>
+                    </p-iconfield>
+                    <label>Nova senha</label>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div class="flex items-center justify-center h-full" *ngIf="lSenhaDiferenteRegra==false">
+                <p-iftalabel>
+                    <p-iconfield>
+                        <p-password [(ngModel)]="cNovaSenha2" autocomplete="off" [feedback]="false" [toggleMask]="true" pSize="small" />
+                    </p-iconfield>
+                    <label>Redigite nova senha</label>
+                    <small *ngIf="lSenhaDiferenteRegra==false&&this.cNovaSenha1!==this.cNovaSenha2" style="color: crimson;">Senhas não são idênticas</small>
+                </p-iftalabel>
+            </div>
+            <BR>
+            <div style="text-align: left; color: crimson; font-size: smaller;" *ngIf="lSenhaDiferenteRegra==true">
+                <label>A senha deve conter:</label>
+                <label><li>No mínimo 14 caracteres</li></label>
+                <label><li>No máximo 30 caracteres</li></label>
+                <label><li>Letras e Números</li></label>
+                <label><li>Caractere especial (!&#64;#$%&*)</li></label>
+            </div>
+            <div class="flex items-center justify-center h-full">
+                <p-button *ngIf="this.cNovaSenha1===this.cNovaSenha2&&this.cNovaSenha1.trim()!==''" label="Gravar" severity="info" (click)="regravarSenhaAposReset()"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ngx-spinner name="timer" bdColor = "rgba(0, 0, 0, 0.8)" size = "large" color = "#fff" type = "timer" [fullScreen] = "true"><p style="color: white" > Aguarde ... </p></ngx-spinner>

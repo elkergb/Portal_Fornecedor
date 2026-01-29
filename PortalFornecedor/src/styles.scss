@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "primeicons/primeicons.css";
+
+:root {
+  --body-bg: var(--p-surface-50);
+  --body-text-color: var(--p-surface-900);
+  --card-border: 1px solid var(--border-color);
+  --card-bg: var(--p-surface-0);
+  --border-color: var(--p-surface-200);
+  --text-color: var(--p-surface-700);
+  --overlay-background: #ffffff;
+}
+
+:root[class='p-dark'] {
+  --body-bg: var(--p-surface-950);
+  --body-text-color: var(--p-surface-50);
+  --card-border: 1px solid transparent;
+  --card-bg: var(--p-surface-900);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-color: var(--p-surface-0);
+  --overlay-background: var(--p-surface-900);
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  margin: 0px;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: var(--body-bg);
+  font-weight: normal;
+  color: var(--body-text-color);
+  padding: 1rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: var(--card-border);
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.button_acoes_pedidos button {
+  padding: .3rem .3rem .1rem .3rem;
+  border-radius: 1rem;
+}
+
+:host ::ng-deep {
+  .p-scroller-viewport {
+      flex: none;
+  }
+}
+
+.p-dialog {
+    white-space: pre;
+    .b {
+      font-weight: bold;
+    }
+}
+
+.p-megamenu-root-list > .p-megamenu-item-active > .p-megamenu-overlay .p-megamenu-grid {
+  display: flow-root;
+}
+
+
+.tooltip-container {
+  position: relative; /* Essential for positioning the tooltip text relative to the icon */
+  display: inline-block; /* Allows side-by-side placement if needed */
+  cursor: help; /* Changes cursor to a help icon on hover */
+}
+
+.tooltip-text {
+  visibility: hidden; /* Hide the tooltip by default */
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%; /* Position above the icon */
+  left: 50%;
+  margin-left: -60px; /* Center the tooltip (half of the width) */
+  opacity: 0;
+  transition: opacity 0.3s; /* Add a fade-in effect */
+}
+
+/* Show the tooltip when hovering over the container */
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.p-dialog_IncluirLoginFornecedor {
+  background-color: aliceblue;
+}
+
+.p-dialog-footer {
+    display: block !important;
+}
