@@ -52,9 +52,9 @@ export class AppComponent implements OnInit {
 
     cChaveAcesso : string = ""
     lChaveAcessoVisible : boolean = false
-    cCNPJ : string = "21.433.547/0001-50"
+    cCNPJ : string = ""
     lCNPJDisable : boolean = false
-    cLogin : string = "087.692.456-90"
+    cLogin : string = ""
     lLoginDisable : boolean = false
     lCampoSenhaVisible : boolean = false
     cSenha : string = "EntrarAgora@2025"
