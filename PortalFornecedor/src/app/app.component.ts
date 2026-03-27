@@ -101,7 +101,7 @@ export class AppComponent implements OnInit {
         console.log(window.sessionStorage.getItem("jsonPortalFornecedor_senha"));
         this.cCodigoFornecedor = '000047'//window.sessionStorage.getItem("jsonPortalFornecedor_codigo")
         this.cLojaFornecedor = '01'//window.sessionStorage.getItem("jsonPortalFornecedor_loja")
-        this.cLoginFornecedor = '087.692.456-90'//window.sessionStorage.getItem("jsonPortalFornecedor_login")
+        this.cLoginFornecedor = ''//window.sessionStorage.getItem("jsonPortalFornecedor_login")
         this.cSenhaFornecedor = 'EntrarAgora@2025'//window.sessionStorage.getItem("jsonPortalFornecedor_senha")
 
         this.spinner.show("timer")
