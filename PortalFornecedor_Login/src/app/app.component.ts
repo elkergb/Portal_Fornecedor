@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
 
     cCodigoFornecedor : string = "000047"
     cCodigoLoja : string = "01"
-    cLogin : string = '087.692.456-90'
+    cLogin : string = ''
     cSenha : string = "EntrarAgora@2025"
     cEmail_2F : string = ""
     cAutenticacao2F : string = ""
